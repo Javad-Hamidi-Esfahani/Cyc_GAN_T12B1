@@ -1,0 +1,11 @@
+module load StdEnv/2020  gcc/9.3.0 cuda/11.2.2 cudnn/8.2.0 python/3.7
+
+sbatch "path to .sl file"
+
+salloc --time=1:0:0 --account=def-punithak --gres=gpu:v100l:1 --mem=128G --cpus-per-task=12
+
+source /home/javadhe/Py-venv/bin/activate 
+
+
+
+N_split and range
