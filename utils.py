@@ -3,6 +3,7 @@ import torch
 from torch.nn import L1Loss, MSELoss
 import nibabel as nib
 import numpy as np
+import cv2
 
 
 class L1_loss(torch.nn.Module):
@@ -15,19 +16,10 @@ class L1_loss(torch.nn.Module):
         return l
 
 
-def save_input(inputs, comment='input'):
-    inputs = inputs.detach().cpu().numpy()
-    N1,N2,N3,N4,N5 = inputs.shape
-    inputs = np.reshape(inputs[0], (N3,N4,N5,N2))
-    affine = np.array([[ 8.49883914e-01,  7.44797662e-03, -1.22618685e-02,
-        -8.95130615e+01],
-       [-9.09765251e-03,  8.57123375e-01, -1.37016967e-01,
-        -9.84052505e+01],
-       [ 1.07044466e-02,  1.37129501e-01,  8.57086062e-01,
-        -8.96880875e+01],
-       [ 0.00000000e+00,  0.00000000e+00,  0.00000000e+00,
-         1.00000000e+00]])
+def save_input(inputs, path):
+    for i in range(inputs.shape[1]):
+        tmp = inputs[0,i,:,:].detach().cpu().numpy()
+        tmp = ( (tmp - np.min(tmp)) / (np.max(tmp) - np.min(tmp) + 1e-10) * (2**16 - 1) ).astype('uint16')
+        cv2.imwrite(path + '_{}.png'.format(i), tmp)
 
-    img = nib.Nifti1Image(inputs, affine)
-    nib.save(img, '/scratch/javadhe/Result_Test/Cyc_GAN/_10/{}.nii.gz'.format(comment))
     return

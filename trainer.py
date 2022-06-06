@@ -10,10 +10,7 @@ from utils import save_input
 def preview_results(test_data_dir, model, e, device, path_test_save, pad, mask_roi=True):
     with torch.no_grad():
         T1, B1, affine, mx_T1 = preview_dataloader(test_data_dir, pad, mask_roi)
-        # T1_nii = nib.load(test_data_dir)
-        # affine = T1_nii.affine
-        # T1 = torch.from_numpy(T1_nii.get_fdata()).to(device)
-        # T1 = torch.unsqueeze(T1,0)
+
         T1 = torch.unsqueeze(T1,0)
 
         enc = model[0]
@@ -106,14 +103,12 @@ def train(dataloaders, model_enc, model_dec, discriminator, optimizer, optimizer
         running_loss_B1_cyc = 0
         with torch.set_grad_enabled(ph=='train'):
             for i, (T1, B1, brain) in enumerate(dataloader):
-                # T1 = torch.zeros((1,4,32,32,32))
-                # B1 = torch.zeros((1,4,32,32,32))
                 optimizer.zero_grad()
                 optimizer_disc.zero_grad()
 
                 if epoch==0 and i==0:
-                    save_input(T1, 'T1')
-                    save_input(B1, 'B1')
+                    save_input(T1, path=model_path_save+'/T1')
+                    save_input(B1, path=model_path_save+'/B1')
 
                 T1 = T1.to(device)
                 B1 = B1.to(device)
@@ -134,10 +129,10 @@ def train(dataloaders, model_enc, model_dec, discriminator, optimizer, optimizer
                 output_B1T1B1 = dec_T1B1(latentB1T1B1) * brain
                 #save_input(output_B1_fake_in, 'output_B1_fake_in')
                 # GAN path
-                input_T1_fake = torch.cat((output_T1_fake, B1[:,0:1,:,:,:]), 1)
-                input_B1_fake = torch.cat((output_B1_fake, T1[:,0:1,:,:,:]), 1)
-                input_T1_real = torch.cat((T1[:,0:1,:,:,:], B1[:,0:1,:,:,:]), 1)
-                input_B1_real = torch.cat((B1[:,0:1,:,:,:], T1[:,0:1,:,:,:]), 1)
+                input_T1_fake = torch.cat((output_T1_fake, B1[:,0:1,:,:]), 1)
+                input_B1_fake = torch.cat((output_B1_fake, T1[:,0:1,:,:]), 1)
+                input_T1_real = torch.cat((T1[:,0:1,:,:], B1[:,0:1,:,:]), 1)
+                input_B1_real = torch.cat((B1[:,0:1,:,:], T1[:,0:1,:,:]), 1)
                 p_T1_fake = disc_T1(input_T1_fake)
                 p_B1_fake = disc_B1(input_B1_fake)
                 p_T1_real = disc_T1(input_T1_real)

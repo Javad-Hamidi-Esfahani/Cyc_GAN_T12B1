@@ -18,9 +18,9 @@ class VGG_encoder(nn.Module):
 
         conv_stride = 1 if (maxpool + avgpool) else 2
         
-        pooling = getattr(nn, 'MaxPool3d')
+        pooling = getattr(nn, 'MaxPool2d')
         if avgpool==True:
-            pooling = getattr(nn, 'AvgPool3d')
+            pooling = getattr(nn, 'AvgPool2d')
 
         self.encoder1 = VGG_encoder._block(in_channels, features, name="enc1", stride=1)
         self.pool1 = pooling(kernel_size=2, stride=2) if (maxpool+avgpool) else Identity()    
@@ -46,12 +46,12 @@ class VGG_encoder(nn.Module):
         return nn.Sequential(
             OrderedDict([
                     (name + "conv1",
-                        nn.Conv3d(in_channels=in_channels,out_channels=features,kernel_size=3,stride=stride,padding=1,bias=False,),),
-                    (name + "norm1", nn.BatchNorm3d(num_features=features)),
+                        nn.Conv2d(in_channels=in_channels,out_channels=features,kernel_size=3,stride=stride,padding=1,bias=False,),),
+                    (name + "norm1", nn.BatchNorm2d(num_features=features)),
                     (name + "relu1", nn.ReLU(inplace=True)),
                     (name + "conv2",
-                        nn.Conv3d(in_channels=features,out_channels=features,kernel_size=3,padding=1,bias=False,),),
-                    (name + "norm2", nn.BatchNorm3d(num_features=features)),
+                        nn.Conv2d(in_channels=features,out_channels=features,kernel_size=3,padding=1,bias=False,),),
+                    (name + "norm2", nn.BatchNorm2d(num_features=features)),
                     (name + "relu2", nn.ReLU(inplace=True)),
                 ]))
 
@@ -60,16 +60,16 @@ class VGG_decoder(nn.Module):
     def __init__(self, features=32):
         super(VGG_decoder, self).__init__()
 
-        self.upconv4 = nn.ConvTranspose3d(features * 16, features * 8, kernel_size=2, stride=2)
+        self.upconv4 = nn.ConvTranspose2d(features * 16, features * 8, kernel_size=2, stride=2)
         self.decoder4 = VGG_encoder._block(features * 8, features * 8, name="dec4")
-        self.upconv3 = nn.ConvTranspose3d(features * 8, features * 4, kernel_size=2, stride=2)
+        self.upconv3 = nn.ConvTranspose2d(features * 8, features * 4, kernel_size=2, stride=2)
         self.decoder3 = VGG_encoder._block(features * 4, features * 4, name="dec3")
-        self.upconv2 = nn.ConvTranspose3d(features * 4, features * 2, kernel_size=2, stride=2)
+        self.upconv2 = nn.ConvTranspose2d(features * 4, features * 2, kernel_size=2, stride=2)
         self.decoder2 = VGG_encoder._block(features * 2, features * 2, name="dec2")
-        self.upconv1 = nn.ConvTranspose3d(features * 2, features, kernel_size=2, stride=2)
+        self.upconv1 = nn.ConvTranspose2d(features * 2, features, kernel_size=2, stride=2)
         self.decoder1 = VGG_encoder._block(features, features, name="dec1")
 
-        self.conv = nn.Conv3d(in_channels=features, out_channels=1, kernel_size=1)
+        self.conv = nn.Conv2d(in_channels=features, out_channels=1, kernel_size=1)
         self.sig = nn.Sigmoid()
 
     def forward(self, x):
@@ -87,19 +87,19 @@ class Discriminator(nn.Module):
 
         self.model = nn.Sequential(*[
         VGG_encoder._block(2, features, name="enc1"),
-        nn.MaxPool3d(kernel_size=2, stride=2),
+        nn.MaxPool2d(kernel_size=2, stride=2),
         VGG_encoder._block(features, features * 2, name="enc2"),
-        nn.MaxPool3d(kernel_size=2, stride=2),
+        nn.MaxPool2d(kernel_size=2, stride=2),
         VGG_encoder._block(features * 2, features * 4, name="enc3"),
-        nn.MaxPool3d(kernel_size=2, stride=2),
+        nn.MaxPool2d(kernel_size=2, stride=2),
         VGG_encoder._block(features * 4, features * 8, name="enc4"),
-        nn.MaxPool3d(kernel_size=2, stride=2),
+        nn.MaxPool2d(kernel_size=2, stride=2),
         VGG_encoder._block(features * 8, features * 16, name="bottleneck"),
         VGG_encoder._block(features * 16, 1, name="compressor"),
         ])
 
     def forward(self, x):
         x = self.model(x)
-        x = nn.AvgPool3d(kernel_size=x.size()[2:])(x)
+        x = nn.AvgPool2d(kernel_size=x.size()[2:])(x)
         x = F.sigmoid(x)
         return x.view(x.size()[0])

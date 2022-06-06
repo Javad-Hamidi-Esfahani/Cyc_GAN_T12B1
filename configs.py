@@ -8,7 +8,7 @@ lambda_normal = 0
 lambda_cyc = 100
 mask_roi = True
 comment = '_{}_brain'.format(lambda_cyc)
-zoom = [2,2,2]
+zoom = [1,1,1]
 load_check = False
 checkpoint = 100
 
@@ -20,7 +20,7 @@ num_workers = 0
 epoch = 10000
 lr = 1e-3
 
-dir_dataset = "/project/6019255/javadhe/Data/"
+dir_dataset = r"C:\Users\hamid\D_drive\University\Ryan\Data"
 
 # Model
 features = 8
@@ -31,14 +31,14 @@ avgpool = False
 crop = False
 perspective = False
 degrade = False
-pad = [0,0,12]
+pad = [0,0]
 
 # Preview Function
-test_data_dir = "/project/6019255/javadhe/Data/Ab300_390/"
-path_test_save = os.path.join("/scratch/javadhe/Result_Test/Cyc_GAN/", comment)
+test_data_dir = r"C:\Users\hamid\D_drive\University\Ryan\Data\Ab300_390"
+path_test_save = os.path.join(r"C:\Users\hamid\D_drive\University\Ryan\Misc", comment)
 
-log_dir = os.path.join("/scratch/javadhe/Result_Test/Cyc_GAN/", comment, "Logs/")
-model_path_save = os.path.join("/scratch/javadhe/Models/Cyc_GAN/", comment)
+log_dir = os.path.join(r"C:\Users\hamid\D_drive\University\Ryan\Misc", comment, "Logs/")
+model_path_save = os.path.join(r"C:\Users\hamid\D_drive\University\Ryan\Misc", comment)
 
 if not os.path.isdir(log_dir):
     os.makedirs(log_dir)

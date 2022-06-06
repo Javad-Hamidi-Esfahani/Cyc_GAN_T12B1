@@ -25,8 +25,8 @@ print(gpu_ids)
 
 in_channels = 4 if mask_roi else 1
 
-n_train = list(range(1, 2))  # list(range(1,N_split))
-n_test = list(range(2, 3))  # list(range(N_split, 391))
+n_train = list(range(1,N_split))
+n_test = list(range(N_split, 391))
 
 
 available_gpus = [torch.cuda.device(i) for i in range(torch.cuda.device_count())]
